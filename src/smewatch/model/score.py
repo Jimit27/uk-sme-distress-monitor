@@ -40,7 +40,7 @@ def score_frame(df: pd.DataFrame, model_dir: Path | None = None) -> pd.DataFrame
 def score_latest(warehouse: Path | None = None, out_path: Path | None = None) -> pd.DataFrame:
     import duckdb
 
-    con = duckdb.connect(str(warehouse or config.WAREHOUSE), read_only=True)
+    con = duckdb.connect(str(warehouse or config.WAREHOUSE))
     try:
         df = con.execute("select * from fct_live_filings").df()
     finally:
