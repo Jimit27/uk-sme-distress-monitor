@@ -1,7 +1,6 @@
 from datetime import date
 
 import duckdb
-import pytest
 
 from smewatch.extract import export_extract
 from smewatch.ingest.accounts import parse_zip
