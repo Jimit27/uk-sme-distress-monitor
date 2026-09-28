@@ -46,7 +46,8 @@ def snapshot_to_parquet(zip_path: Path, out_path: Path, workdir: Path, limit: in
         COPY (
             SELECT * FROM read_csv([{file_list}], header=true, all_varchar=true,
                                    normalize_names=true, union_by_name=true,
-                                   strict_mode=false, null_padding=true)
+                                   strict_mode=false, null_padding=true, parallel=false,
+                                   quote='"', escape='"')
             {limit_sql}
         ) TO '{out_path.as_posix()}' (FORMAT parquet, COMPRESSION zstd)
         """
