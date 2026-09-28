@@ -8,8 +8,6 @@ from smewatch.ingest.snapshot import snapshot_to_parquet
 from smewatch.warehouse import build_warehouse
 
 
-
-
 def test_dbt_build_end_to_end(tmp_path, fixtures_dir):
     processed = tmp_path / "processed"
     snapshot_to_parquet(fixtures_dir / "snapshot" / "BasicCompanyData-fixture.zip", processed / "snapshot.parquet", tmp_path / "csv")

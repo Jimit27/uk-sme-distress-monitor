@@ -24,9 +24,9 @@ could be read at all.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Iterable
 
 from lxml import etree
 

@@ -21,10 +21,9 @@ from __future__ import annotations
 
 import json
 import logging
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
-
-import warnings
 
 import joblib
 import lightgbm as lgb

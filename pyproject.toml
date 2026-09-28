@@ -24,7 +24,7 @@ dependencies = [
 [project.optional-dependencies]
 warehouse = ["dbt-duckdb>=1.8"]
 app = ["streamlit>=1.35", "plotly>=5.20"]
-dev = ["pytest>=8", "ruff>=0.5", "matplotlib>=3.8"]
+dev = ["pytest>=8", "ruff==0.15.*", "matplotlib>=3.8"]
 
 [project.scripts]
 smewatch = "smewatch.cli:main"
@@ -39,3 +39,11 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 120
 target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501", "B905"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["smewatch"]
+known-local-folder = ["synthetic", "fixtures"]
