@@ -47,16 +47,30 @@ def style(fig: go.Figure, height: int = 360) -> go.Figure:
     return fig
 
 
+def _mtime(name: str) -> float:
+    p = PUB / name
+    return p.stat().st_mtime if p.exists() else 0.0
+
+
 @st.cache_data
-def load_json(name: str) -> dict:
+def _load_json(name: str, mtime: float) -> dict:
     p = PUB / name
     return json.loads(p.read_text()) if p.exists() else {}
 
 
 @st.cache_data
-def load_parquet(name: str) -> pd.DataFrame:
+def _load_parquet(name: str, mtime: float) -> pd.DataFrame:
     p = PUB / name
     return pd.read_parquet(p) if p.exists() else pd.DataFrame()
+
+
+# cache keyed on file modification time, so a refreshed watchlist shows up without a restart
+def load_json(name: str) -> dict:
+    return _load_json(name, _mtime(name))
+
+
+def load_parquet(name: str) -> pd.DataFrame:
+    return _load_parquet(name, _mtime(name))
 
 
 def month_label(batch: str) -> str:
@@ -123,7 +137,7 @@ with tab_watch:
 
         table = view.assign(
             **{
-                "PD (12m)": view["pd"],
+                "PD (12m)": view["pd"] * 100,
                 "Assets": view["total_assets"].map(money),
                 "Net assets": view["equity"].map(money),
             }
@@ -133,7 +147,7 @@ with tab_watch:
             table.head(500),
             hide_index=True,
             use_container_width=True,
-            column_config={"PD (12m)": st.column_config.ProgressColumn(format="%.1f%%", min_value=0.0, max_value=float(max(0.01, live["pd"].max())))},
+            column_config={"PD (12m)": st.column_config.ProgressColumn(format="%.1f%%", min_value=0.0, max_value=float(max(1.0, 100 * live["pd"].max())))},
         )
         if len(view) > 500:
             st.caption(f"Showing the riskiest 500 of {len(view):,} matching companies.")
