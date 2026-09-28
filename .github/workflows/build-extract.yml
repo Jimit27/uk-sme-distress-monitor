@@ -1,0 +1,66 @@
+name: build-extract
+
+# Heavy ingestion: downloads the register snapshot and the monthly accounts
+# archives from Companies House, parses ~400k iXBRL filings and publishes slim
+# parquet extracts as release assets. Runs on demand (or when the ingestion
+# code changes) because it moves ~5 GB and takes a while.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/smewatch/ingest/**"
+      - "src/smewatch/ixbrl.py"
+      - "src/smewatch/extract.py"
+      - ".github/workflows/build-extract.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-extract
+  cancel-in-progress: true
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      RELEASE_TAG: data-extract
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Register snapshot
+        run: python -m smewatch.cli ingest-snapshot
+
+      - name: Monthly accounts archives
+        run: python -m smewatch.cli ingest-accounts --delete-zip
+
+      - name: Export slim extract
+        run: |
+          python -m smewatch.cli export-extract
+          rm -rf data/raw
+          ls -la data/extract
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" --title "Data extract" \
+              --notes "Slim parquet extracts of the Companies House register snapshot and parsed monthly accounts. Rebuilt by the build-extract workflow."
+          gh release upload "$RELEASE_TAG" data/extract/*.parquet --clobber
