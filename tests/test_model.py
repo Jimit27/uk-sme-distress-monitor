@@ -7,6 +7,7 @@ from smewatch.model.features import FEATURES, model_matrix
 from smewatch.model.metrics import capture_at, decile_table, summarise
 from smewatch.model.score import score_frame
 from smewatch.model.train import train_target
+
 from synthetic import make_cohort
 
 
