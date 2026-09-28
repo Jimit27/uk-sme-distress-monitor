@@ -1,0 +1,30 @@
+name: smewatch
+version: "1.0.0"
+config-version: 2
+profile: smewatch
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Study design - kept in sync with smewatch.config.StudyDesign
+  train_batches: ["July2025"]
+  test_batches: ["August2025"]
+  outcome_snapshot_date: "2026-09-01"
+
+models:
+  smewatch:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table
+
+seeds:
+  smewatch:
+    +quote_columns: false

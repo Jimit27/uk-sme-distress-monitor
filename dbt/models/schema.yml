@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_ch__register
+    description: Typed register snapshot, one row per live company.
+    columns:
+      - name: company_number
+        tests: [unique, not_null]
+      - name: status_group
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['active', 'insolvency', 'strike_off_proposed', 'other']
+
+  - name: stg_ch__accounts
+    description: Parsed accounts, one filing per company per batch.
+    columns:
+      - name: company_number
+        tests: [not_null]
+      - name: balance_sheet_date
+        tests: [not_null]
+
+  - name: int_accounts__features
+    description: Point-in-time ratios and flags derived only from the filed accounts.
+
+  - name: fct_training_cohort
+    description: Labelled modelling table (features at filing, outcome ~12 months later).
+    columns:
+      - name: company_number
+        tests: [unique, not_null]
+      - name: split
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['train', 'test']
+      - name: label_insolvency
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: label_failure
+        tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+      - name: outcome_group
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['active', 'insolvency', 'strike_off_proposed', 'removed', 'other']
+
+  - name: fct_live_filings
+    description: Latest daily filings for live scoring, with register context for display.
+    columns:
+      - name: company_number
+        tests: [unique, not_null]
+
+  - name: mart_register_health_by_sector
+    description: Insolvency, strike-off and overdue-accounts rates by SIC section.
+  - name: mart_register_health_by_area
+    description: The same rates by postcode area.
+  - name: mart_incorporations_by_year
+    description: Register composition and distress by incorporation vintage.

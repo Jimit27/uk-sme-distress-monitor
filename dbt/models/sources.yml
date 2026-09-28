@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: companies_house
+    description: >
+      Slim parquet extracts produced by `smewatch export-extract` from the
+      Companies House bulk products. Location set by SMEWATCH_EXTRACT.
+    meta:
+      external_location: "read_parquet('{{ env_var('SMEWATCH_EXTRACT', '../data/extract') }}/{name}.parquet', union_by_name = true)"
+    tables:
+      - name: register_snapshot
+        description: Free Company Data Product - every live company on the register at the snapshot date.
+        columns:
+          - name: company_number
+            tests: [not_null]
+      - name: accounts
+        description: One row per parsed iXBRL/XBRL accounts filing (all monthly and daily batches).
+        meta:
+          external_location: "read_parquet('{{ env_var('SMEWATCH_EXTRACT', '../data/extract') }}/accounts_*.parquet', union_by_name = true)"
