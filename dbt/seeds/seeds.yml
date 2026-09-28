@@ -1,0 +1,7 @@
+version: 2
+seeds:
+  - name: sic_sections
+    description: UK SIC 2007 division ranges mapped to their section letter and name (ONS).
+    columns:
+      - name: sic_section
+        tests: [not_null, unique]

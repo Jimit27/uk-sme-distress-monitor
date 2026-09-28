@@ -1,0 +1,7 @@
+smewatch:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('SMEWATCH_WAREHOUSE', '../data/warehouse.duckdb') }}"
+      threads: 4
