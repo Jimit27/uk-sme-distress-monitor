@@ -94,6 +94,30 @@ DESCRIPTIONS: dict[str, tuple[str, str]] = {
 }
 
 
+# Which side of the median is the conventionally *adverse* one. Reason codes
+# skip a feature whose SHAP value is positive but whose value sits on the
+# benign side (a non-monotone interaction), because "comfortable liquidity"
+# is a confusing reason for high risk. None = either side can be stated as fact.
+ADVERSE_SIDE: dict[str, str | None] = {
+    "equity_to_assets": "low",
+    "negative_equity": "high",
+    "liabilities_to_assets": "high",
+    "long_term_creditors_to_assets": "high",
+    "current_ratio": "low",
+    "working_capital_to_assets": "low",
+    "cash_to_assets": "low",
+    "cash_to_current_liabilities": "low",
+    "current_liabilities_to_assets": "high",
+    "equity_change_to_assets": "low",
+    "cash_change_to_assets": "low",
+    "current_liabilities_change_to_assets": "high",
+    "equity_turned_negative": "high",
+    "has_prior_year": "low",
+    "filing_lag_days": "high",
+    "filed_late": "high",
+}
+
+
 def add_entity_dummies(df):
     """One-hot encode entity_group into fixed columns (stable across train and scoring)."""
     out = df.copy()

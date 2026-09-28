@@ -87,3 +87,13 @@ def test_describe_follows_the_value_not_the_sign():
     assert describe("cash_to_assets", None, 0.2) == "cash to assets not reported"
     assert describe("has_prior_year", 1.0, 1.0) == "established filing history"
     assert describe("filed_late", 1.0, 0.0) == "accounts filed after the statutory deadline"
+
+
+def test_select_reasons_skips_benign_side():
+    from smewatch.model.explain import select_reasons
+
+    contrib = pd.DataFrame({"current_ratio": [0.9], "log_total_assets": [0.5], "filed_late": [0.3], "cash_to_assets": [-0.2]})
+    values = pd.DataFrame({"current_ratio": [5.0], "log_total_assets": [12.0], "filed_late": [1.0], "cash_to_assets": [0.0]})
+    picked = select_reasons(contrib, values, {"current_ratio": 1.2, "log_total_assets": 10.0})
+    # strong liquidity is not offered as a reason for high risk
+    assert [f for f, _ in picked[0]] == ["log_total_assets", "filed_late"]

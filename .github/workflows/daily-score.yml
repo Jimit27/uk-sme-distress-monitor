@@ -12,6 +12,8 @@ on:
     branches: [main]
     paths:
       - "models/**"
+      - "src/smewatch/model/score.py"
+      - "src/smewatch/model/explain.py"
       - ".github/workflows/daily-score.yml"
 
 permissions:

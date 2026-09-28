@@ -14,7 +14,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from smewatch.model.features import BINARY_FEATURES, DESCRIPTIONS
+from smewatch.model.features import ADVERSE_SIDE, BINARY_FEATURES, DESCRIPTIONS
 
 GRADE_WORDS = {
     "A": "low",
@@ -37,14 +37,43 @@ def reason_codes(contrib: pd.DataFrame, k: int = 3) -> list[list[tuple[str, floa
     return out
 
 
+def _is_high(feature: str, value: float, median: float | None) -> bool:
+    if feature in BINARY_FEATURES or median is None or pd.isna(median):
+        median = 0.5
+    return value > median
+
+
+def select_reasons(
+    contrib: pd.DataFrame,
+    values: pd.DataFrame,
+    medians: dict,
+    k: int = 3,
+) -> list[list[tuple[str, float]]]:
+    """Top-k risk-increasing features per row, skipping ones stated on their benign side."""
+    out = []
+    cols = np.array(contrib.columns)
+    for c_row, (_, v_row) in zip(contrib.to_numpy(), values.iterrows()):
+        picked: list[tuple[str, float]] = []
+        for i in np.argsort(-c_row):
+            if c_row[i] <= 0 or len(picked) == k:
+                break
+            f = cols[i]
+            side = ADVERSE_SIDE.get(f)
+            v = v_row.get(f)
+            if side and v is not None and not pd.isna(v):
+                if (side == "high") != _is_high(f, v, medians.get(f)):
+                    continue
+            picked.append((f, float(c_row[i])))
+        out.append(picked)
+    return out
+
+
 def describe(feature: str, value: float | None = None, median: float | None = None) -> str:
     """Phrase for a feature given the company's value relative to the typical filer."""
     high, low = DESCRIPTIONS.get(feature, (feature.replace("_", " "), feature.replace("_", " ")))
     if value is None or pd.isna(value):
         return f"{feature.replace('_', ' ')} not reported"
-    if feature in BINARY_FEATURES or median is None or pd.isna(median):
-        median = 0.5
-    return high if value > median else low
+    return high if _is_high(feature, value, median) else low
 
 
 def fmt_money(v: float | None) -> str:
