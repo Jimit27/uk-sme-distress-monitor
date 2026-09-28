@@ -23,7 +23,7 @@ MARTS = [
 def publish_all(warehouse: Path | None = None, out_dir: Path | None = None) -> None:
     out_dir = out_dir or config.PUBLISHED
     out_dir.mkdir(parents=True, exist_ok=True)
-    con = duckdb.connect(str(warehouse or config.WAREHOUSE), read_only=True)
+    con = duckdb.connect(str(warehouse or config.WAREHOUSE))
     try:
         for mart in MARTS:
             con.execute(f"copy (select * from {mart}) to '{(out_dir / f'{mart}.parquet').as_posix()}' (format parquet)")

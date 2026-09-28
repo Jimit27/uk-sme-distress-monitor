@@ -94,7 +94,7 @@ class DistressModel:
 def load_cohort(warehouse: Path | None = None) -> pd.DataFrame:
     import duckdb
 
-    con = duckdb.connect(str(warehouse or config.WAREHOUSE), read_only=True)
+    con = duckdb.connect(str(warehouse or config.WAREHOUSE))
     try:
         return con.execute("select * from fct_training_cohort").df()
     finally:
@@ -161,7 +161,7 @@ def train_target(df: pd.DataFrame, target: str, out_dir: Path, seed: int = 42) -
     p_raw = booster.predict_proba(x_test)[:, 1]
     p_cal = iso.predict(p_raw)
     # isotonic produces ties; rank on the raw score to break them for ranking metrics
-    p_rank = p_cal + 1e-9 * p_raw
+    p_rank = p_cal * (1 - 1e-9) + 1e-9 * p_raw
 
     results = {
         "target": target,

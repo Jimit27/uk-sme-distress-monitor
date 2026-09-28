@@ -37,11 +37,16 @@ def snapshot_to_parquet(zip_path: Path, out_path: Path, workdir: Path, limit: in
     limit_sql = f"LIMIT {int(limit)}" if limit else ""
     # Header names in the source carry stray leading spaces; normalize_names
     # turns 'Accounts.NextDueDate' into 'accounts_nextduedate' etc.
+    # A handful of rows list a fifth SIC code and so carry one extra field.
+    # Non-strict parsing keeps those rows (dropping them would make the
+    # companies look dissolved); only their trailing confirmation-statement
+    # dates shift, and those are not used by the model.
     con.execute(
         f"""
         COPY (
             SELECT * FROM read_csv([{file_list}], header=true, all_varchar=true,
-                                   normalize_names=true, union_by_name=true)
+                                   normalize_names=true, union_by_name=true,
+                                   strict_mode=false, null_padding=true)
             {limit_sql}
         ) TO '{out_path.as_posix()}' (FORMAT parquet, COMPRESSION zstd)
         """
