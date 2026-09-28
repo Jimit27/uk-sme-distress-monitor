@@ -29,14 +29,14 @@ jobs:
     env:
       RELEASE_TAG: data-extract
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -46,14 +46,14 @@ jobs:
         run: pip install -e .
 
       - name: Register snapshot
-        run: python -m smewatch.cli ingest-snapshot
+        run: scripts/run_step.sh snapshot python -m smewatch.cli ingest-snapshot
 
       - name: Monthly accounts archives
-        run: python -m smewatch.cli ingest-accounts --delete-zip
+        run: scripts/run_step.sh accounts python -m smewatch.cli ingest-accounts --delete-zip
 
       - name: Export slim extract
         run: |
-          python -m smewatch.cli export-extract
+          scripts/run_step.sh extract python -m smewatch.cli export-extract
           rm -rf data/raw
           ls -la data/extract
 
