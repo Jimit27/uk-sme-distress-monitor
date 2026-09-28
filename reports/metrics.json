@@ -1,0 +1,741 @@
+{
+  "cohort": {
+    "rows": 403601,
+    "by_split": {
+      "test": 195405,
+      "train": 208196
+    },
+    "outcome_mix": [
+      {
+        "split": "test",
+        "outcome_group": "active",
+        "n": 178199
+      },
+      {
+        "split": "test",
+        "outcome_group": "insolvency",
+        "n": 1496
+      },
+      {
+        "split": "test",
+        "outcome_group": "removed",
+        "n": 11012
+      },
+      {
+        "split": "test",
+        "outcome_group": "strike_off_proposed",
+        "n": 4698
+      },
+      {
+        "split": "train",
+        "outcome_group": "active",
+        "n": 188838
+      },
+      {
+        "split": "train",
+        "outcome_group": "insolvency",
+        "n": 1664
+      },
+      {
+        "split": "train",
+        "outcome_group": "removed",
+        "n": 12620
+      },
+      {
+        "split": "train",
+        "outcome_group": "strike_off_proposed",
+        "n": 5074
+      }
+    ],
+    "median_horizon_days": {
+      "test": 381.0,
+      "train": 412.0
+    }
+  },
+  "models": {
+    "insolvency": {
+      "target": "insolvency",
+      "label": "label_insolvency",
+      "train_batches": [
+        "July2025"
+      ],
+      "test_batches": [
+        "August2025"
+      ],
+      "best_iteration": 586,
+      "test": {
+        "rule_negative_equity": {
+          "n": 195405,
+          "events": 1496,
+          "base_rate": 0.007655894168521788,
+          "roc_auc": 0.5196600503080681,
+          "gini": 0.03932010061613611,
+          "pr_auc": 0.008593030423219693,
+          "ks": 0.08312948245225454,
+          "brier": null,
+          "mean_predicted": null,
+          "capture_top_1pct": 0.0066844919786096255,
+          "capture_top_5pct": 0.053475935828877004,
+          "capture_top_10pct": 0.14505347593582887,
+          "lift_top_1pct": 0.6684491978609626,
+          "lift_top_10pct": 1.4505347593582887
+        },
+        "logistic_regression": {
+          "n": 195405,
+          "events": 1496,
+          "base_rate": 0.007655894168521788,
+          "roc_auc": 0.7361659310918295,
+          "gini": 0.47233186218365897,
+          "pr_auc": 0.026947578493291293,
+          "ks": 0.3450771625523776,
+          "brier": 0.007550709197670082,
+          "mean_predicted": 0.007868394718685012,
+          "capture_top_1pct": 0.07419786096256685,
+          "capture_top_5pct": 0.20989304812834225,
+          "capture_top_10pct": 0.33088235294117646,
+          "lift_top_1pct": 7.419786096256685,
+          "lift_top_10pct": 3.3088235294117645,
+          "roc_auc_ci95": [
+            0.7259502660762709,
+            0.7488207147365635
+          ]
+        },
+        "lightgbm_calibrated": {
+          "n": 195405,
+          "events": 1496,
+          "base_rate": 0.007655894168521788,
+          "roc_auc": 0.8124290852787968,
+          "gini": 0.6248581705575935,
+          "pr_auc": 0.06760056279569406,
+          "ks": 0.4742446171412396,
+          "brier": 0.007373772354957857,
+          "mean_predicted": 0.007927329730971792,
+          "capture_top_1pct": 0.13903743315508021,
+          "capture_top_5pct": 0.35427807486631013,
+          "capture_top_10pct": 0.4786096256684492,
+          "lift_top_1pct": 13.903743315508022,
+          "lift_top_10pct": 4.786096256684492,
+          "roc_auc_ci95": [
+            0.8024753608839099,
+            0.8224804705861128
+          ]
+        }
+      },
+      "train_in_sample_auc": 0.914610338109481,
+      "grade_table": [
+        {
+          "grade": "A",
+          "companies": 89138,
+          "events": 130,
+          "observed_rate": 0.0014584127981332317,
+          "mean_pd": 0.001035029506455509
+        },
+        {
+          "grade": "B",
+          "companies": 40284,
+          "events": 177,
+          "observed_rate": 0.00439380399165922,
+          "mean_pd": 0.004468162811079261
+        },
+        {
+          "grade": "C",
+          "companies": 42839,
+          "events": 411,
+          "observed_rate": 0.009594061486029086,
+          "mean_pd": 0.009263713921843143
+        },
+        {
+          "grade": "D",
+          "companies": 16662,
+          "events": 354,
+          "observed_rate": 0.02124594886568239,
+          "mean_pd": 0.02794113559090173
+        },
+        {
+          "grade": "E",
+          "companies": 6482,
+          "events": 424,
+          "observed_rate": 0.06541190990435052,
+          "mean_pd": 0.06392787617036227
+        }
+      ],
+      "grade_cutoffs": [
+        0.0030175015087507543,
+        0.006150061500615005,
+        0.017641597028783658,
+        0.03972602739726028
+      ],
+      "decile_table": [
+        {
+          "decile": 1,
+          "companies": 19541,
+          "events": 10,
+          "observed_rate": 0.0005117445371270662,
+          "predicted_rate": 0.00040656149823080004,
+          "share_of_events": 0.0066844919786096255
+        },
+        {
+          "decile": 2,
+          "companies": 19540,
+          "events": 15,
+          "observed_rate": 0.0007676560900716479,
+          "predicted_rate": 0.0006599647470356836,
+          "share_of_events": 0.010026737967914439
+        },
+        {
+          "decile": 3,
+          "companies": 19541,
+          "events": 28,
+          "observed_rate": 0.0014328847039557853,
+          "predicted_rate": 0.0010837590961820806,
+          "share_of_events": 0.01871657754010695
+        },
+        {
+          "decile": 4,
+          "companies": 19540,
+          "events": 38,
+          "observed_rate": 0.0019447287615148414,
+          "predicted_rate": 0.0015185991556425154,
+          "share_of_events": 0.02540106951871658
+        },
+        {
+          "decile": 5,
+          "companies": 19541,
+          "events": 70,
+          "observed_rate": 0.003582211759889463,
+          "predicted_rate": 0.0023780506510476082,
+          "share_of_events": 0.04679144385026738
+        },
+        {
+          "decile": 6,
+          "companies": 19540,
+          "events": 82,
+          "observed_rate": 0.0041965199590583415,
+          "predicted_rate": 0.004346494392299266,
+          "share_of_events": 0.05481283422459893
+        },
+        {
+          "decile": 7,
+          "companies": 19540,
+          "events": 101,
+          "observed_rate": 0.005168884339815763,
+          "predicted_rate": 0.005856450970614642,
+          "share_of_events": 0.06751336898395723
+        },
+        {
+          "decile": 8,
+          "companies": 19541,
+          "events": 184,
+          "observed_rate": 0.009416099483138018,
+          "predicted_rate": 0.006732100859458749,
+          "share_of_events": 0.12299465240641712
+        },
+        {
+          "decile": 9,
+          "companies": 19540,
+          "events": 252,
+          "observed_rate": 0.012896622313203685,
+          "predicted_rate": 0.014513220531354369,
+          "share_of_events": 0.16844919786096257
+        },
+        {
+          "decile": 10,
+          "companies": 19541,
+          "events": 716,
+          "observed_rate": 0.03664090885829794,
+          "predicted_rate": 0.041777443347115396,
+          "share_of_events": 0.4786096256684492
+        }
+      ],
+      "feature_importance": [
+        {
+          "feature": "log_total_assets",
+          "gain": 10800.530730962753,
+          "mean_abs_shap": 0.8977171258730897
+        },
+        {
+          "feature": "asset_growth",
+          "gain": 3642.530722260475,
+          "mean_abs_shap": 0.2209661005568818
+        },
+        {
+          "feature": "current_ratio",
+          "gain": 5055.474920034409,
+          "mean_abs_shap": 0.19745073232061217
+        },
+        {
+          "feature": "current_liabilities_to_assets",
+          "gain": 4348.2787301540375,
+          "mean_abs_shap": 0.17196329416061
+        },
+        {
+          "feature": "log_employees",
+          "gain": 5165.605106472969,
+          "mean_abs_shap": 0.17092064465902218
+        },
+        {
+          "feature": "long_term_creditors_to_assets",
+          "gain": 7462.127312541008,
+          "mean_abs_shap": 0.16441085307314732
+        },
+        {
+          "feature": "filing_lag_days",
+          "gain": 4963.084116578102,
+          "mean_abs_shap": 0.1262494533655892
+        },
+        {
+          "feature": "debtors_to_assets",
+          "gain": 3302.8614770174026,
+          "mean_abs_shap": 0.12094771097801385
+        },
+        {
+          "feature": "equity_change_to_assets",
+          "gain": 4300.5621428489685,
+          "mean_abs_shap": 0.1063134388269152
+        },
+        {
+          "feature": "approx_age_years",
+          "gain": 2605.786406636238,
+          "mean_abs_shap": 0.0858234514032711
+        },
+        {
+          "feature": "cash_change_to_assets",
+          "gain": 2335.2923032045364,
+          "mean_abs_shap": 0.08567688999684069
+        },
+        {
+          "feature": "cash_to_current_liabilities",
+          "gain": 2361.7300708293915,
+          "mean_abs_shap": 0.07748499221440251
+        },
+        {
+          "feature": "current_liabilities_change_to_assets",
+          "gain": 3334.217688560486,
+          "mean_abs_shap": 0.07401573822599292
+        },
+        {
+          "feature": "log_n_facts",
+          "gain": 2321.3099666833878,
+          "mean_abs_shap": 0.07212165528834655
+        },
+        {
+          "feature": "liabilities_to_assets",
+          "gain": 1168.1235883235931,
+          "mean_abs_shap": 0.056818900269241725
+        },
+        {
+          "feature": "cash_to_assets",
+          "gain": 1306.6194174289703,
+          "mean_abs_shap": 0.055363618711019975
+        },
+        {
+          "feature": "equity_to_assets",
+          "gain": 1067.1443635225296,
+          "mean_abs_shap": 0.05252507367559251
+        },
+        {
+          "feature": "n_officers",
+          "gain": 1101.5613067150116,
+          "mean_abs_shap": 0.04591795824891718
+        },
+        {
+          "feature": "working_capital_to_assets",
+          "gain": 474.97997307777405,
+          "mean_abs_shap": 0.03117562709070899
+        },
+        {
+          "feature": "filed_late",
+          "gain": 501.2478756904602,
+          "mean_abs_shap": 0.030888830903707424
+        },
+        {
+          "feature": "entity_england_wales",
+          "gain": 48.36644005775452,
+          "mean_abs_shap": 0.0074631791450776065
+        },
+        {
+          "feature": "equity_turned_negative",
+          "gain": 68.07491970062256,
+          "mean_abs_shap": 0.006644017957907361
+        },
+        {
+          "feature": "entity_scotland",
+          "gain": 44.78942036628723,
+          "mean_abs_shap": 0.0034444035060320027
+        },
+        {
+          "feature": "discloses_turnover",
+          "gain": 40.1667103767395,
+          "mean_abs_shap": 0.0023311610055507396
+        },
+        {
+          "feature": "entity_northern_ireland",
+          "gain": 19.309939980506897,
+          "mean_abs_shap": 0.0018992063083151595
+        },
+        {
+          "feature": "negative_equity",
+          "gain": 44.19929885864258,
+          "mean_abs_shap": 0.001513220623089172
+        },
+        {
+          "feature": "has_prior_year",
+          "gain": 2.8469998836517334,
+          "mean_abs_shap": 0.00013164527232292246
+        },
+        {
+          "feature": "entity_llp",
+          "gain": 1.5757800340652466,
+          "mean_abs_shap": 8.145270361165469e-05
+        },
+        {
+          "feature": "entity_other",
+          "gain": 0.0,
+          "mean_abs_shap": 0.0
+        }
+      ]
+    },
+    "failure": {
+      "target": "failure",
+      "label": "label_failure",
+      "train_batches": [
+        "July2025"
+      ],
+      "test_batches": [
+        "August2025"
+      ],
+      "best_iteration": 1221,
+      "test": {
+        "rule_negative_equity": {
+          "n": 195405,
+          "events": 17206,
+          "base_rate": 0.08805301809063228,
+          "roc_auc": 0.49888055968095,
+          "gini": -0.0022388806380999604,
+          "pr_auc": 0.11096128292538789,
+          "ks": 0.08636004807362607,
+          "brier": null,
+          "mean_predicted": null,
+          "capture_top_1pct": 0.00836917354411252,
+          "capture_top_5pct": 0.10176682552597931,
+          "capture_top_10pct": 0.17302103917238174,
+          "lift_top_1pct": 0.8369173544112519,
+          "lift_top_10pct": 1.7302103917238172
+        },
+        "logistic_regression": {
+          "n": 195405,
+          "events": 17206,
+          "base_rate": 0.08805301809063228,
+          "roc_auc": 0.7300154460075211,
+          "gini": 0.4600308920150422,
+          "pr_auc": 0.19820251882993578,
+          "ks": 0.34235451090643304,
+          "brier": 0.07615391597882237,
+          "mean_predicted": 0.09330604344545002,
+          "capture_top_1pct": 0.03562710682320121,
+          "capture_top_5pct": 0.14913402301522724,
+          "capture_top_10pct": 0.27467162617691504,
+          "lift_top_1pct": 3.5627106823201204,
+          "lift_top_10pct": 2.74671626176915,
+          "roc_auc_ci95": [
+            0.7263895076383826,
+            0.7340710356526202
+          ]
+        },
+        "lightgbm_calibrated": {
+          "n": 195405,
+          "events": 17206,
+          "base_rate": 0.08805301809063228,
+          "roc_auc": 0.7765422628085699,
+          "gini": 0.5530845256171397,
+          "pr_auc": 0.28434766410202317,
+          "ks": 0.40781092362749244,
+          "brier": 0.07195293612616954,
+          "mean_predicted": 0.09624218482597152,
+          "capture_top_1pct": 0.06584912239916309,
+          "capture_top_5pct": 0.20859002673485993,
+          "capture_top_10pct": 0.33598744623968385,
+          "lift_top_1pct": 6.584912239916308,
+          "lift_top_10pct": 3.359874462396838,
+          "roc_auc_ci95": [
+            0.7726189189362536,
+            0.7790698025231867
+          ]
+        }
+      },
+      "train_in_sample_auc": 0.8228318477109902,
+      "grade_table": [
+        {
+          "grade": "A",
+          "companies": 89209,
+          "events": 2116,
+          "observed_rate": 0.023719579863018304,
+          "mean_pd": 0.025485307910013022
+        },
+        {
+          "grade": "B",
+          "companies": 52859,
+          "events": 4219,
+          "observed_rate": 0.07981611456894758,
+          "mean_pd": 0.08818000891127646
+        },
+        {
+          "grade": "C",
+          "companies": 32379,
+          "events": 4808,
+          "observed_rate": 0.14849130609345562,
+          "mean_pd": 0.16649314021975978
+        },
+        {
+          "grade": "D",
+          "companies": 14111,
+          "events": 3277,
+          "observed_rate": 0.23223017504074836,
+          "mean_pd": 0.24629764277588487
+        },
+        {
+          "grade": "E",
+          "companies": 6847,
+          "events": 2786,
+          "observed_rate": 0.40689353001314443,
+          "mean_pd": 0.438906203758128
+        }
+      ],
+      "grade_cutoffs": [
+        0.06287128712871286,
+        0.13507109004739337,
+        0.23465473145780052,
+        0.32857142857142857
+      ],
+      "decile_table": [
+        {
+          "decile": 1,
+          "companies": 19541,
+          "events": 123,
+          "observed_rate": 0.006294457806662914,
+          "predicted_rate": 0.005497804532094089,
+          "share_of_events": 0.007148669068929444
+        },
+        {
+          "decile": 2,
+          "companies": 19540,
+          "events": 279,
+          "observed_rate": 0.014278403275332651,
+          "predicted_rate": 0.013757273543619426,
+          "share_of_events": 0.016215273741718005
+        },
+        {
+          "decile": 3,
+          "companies": 19541,
+          "events": 470,
+          "observed_rate": 0.02405199324497211,
+          "predicted_rate": 0.029484886405678645,
+          "share_of_events": 0.027316052539811692
+        },
+        {
+          "decile": 4,
+          "companies": 19540,
+          "events": 729,
+          "observed_rate": 0.037308085977482086,
+          "predicted_rate": 0.037721332766089105,
+          "share_of_events": 0.04236894106706963
+        },
+        {
+          "decile": 5,
+          "companies": 19541,
+          "events": 991,
+          "observed_rate": 0.05071388362929226,
+          "predicted_rate": 0.05729891233217564,
+          "share_of_events": 0.05759618737649657
+        },
+        {
+          "decile": 6,
+          "companies": 19540,
+          "events": 1356,
+          "observed_rate": 0.06939611054247698,
+          "predicted_rate": 0.0825543888814264,
+          "share_of_events": 0.07880971754039288
+        },
+        {
+          "decile": 7,
+          "companies": 19540,
+          "events": 1799,
+          "observed_rate": 0.0920675537359263,
+          "predicted_rate": 0.09811945652385944,
+          "share_of_events": 0.10455655004068348
+        },
+        {
+          "decile": 8,
+          "companies": 19541,
+          "events": 2405,
+          "observed_rate": 0.12307456117905942,
+          "predicted_rate": 0.13437537835201402,
+          "share_of_events": 0.13977682203882366
+        },
+        {
+          "decile": 9,
+          "companies": 19540,
+          "events": 3273,
+          "observed_rate": 0.16750255885363358,
+          "predicted_rate": 0.18897902157157698,
+          "share_of_events": 0.1902243403463908
+        },
+        {
+          "decile": 10,
+          "companies": 19541,
+          "events": 5781,
+          "observed_rate": 0.29583951691315696,
+          "predicted_rate": 0.31463031881810527,
+          "share_of_events": 0.33598744623968385
+        }
+      ],
+      "feature_importance": [
+        {
+          "feature": "log_total_assets",
+          "gain": 98740.6474263668,
+          "mean_abs_shap": 0.5511170881341954
+        },
+        {
+          "feature": "asset_growth",
+          "gain": 39964.87503027916,
+          "mean_abs_shap": 0.20490271251351796
+        },
+        {
+          "feature": "current_ratio",
+          "gain": 14766.693619251251,
+          "mean_abs_shap": 0.19128828489858246
+        },
+        {
+          "feature": "filing_lag_days",
+          "gain": 34937.996207118034,
+          "mean_abs_shap": 0.16540634077590563
+        },
+        {
+          "feature": "approx_age_years",
+          "gain": 16202.488775014877,
+          "mean_abs_shap": 0.1318405912666135
+        },
+        {
+          "feature": "equity_change_to_assets",
+          "gain": 15584.938793540001,
+          "mean_abs_shap": 0.1292758063563122
+        },
+        {
+          "feature": "current_liabilities_to_assets",
+          "gain": 10650.516871929169,
+          "mean_abs_shap": 0.12687083306274616
+        },
+        {
+          "feature": "log_n_facts",
+          "gain": 10474.826134562492,
+          "mean_abs_shap": 0.0917390114275302
+        },
+        {
+          "feature": "long_term_creditors_to_assets",
+          "gain": 9043.306585788727,
+          "mean_abs_shap": 0.0837554882011863
+        },
+        {
+          "feature": "n_officers",
+          "gain": 3686.40465426445,
+          "mean_abs_shap": 0.0706723833417016
+        },
+        {
+          "feature": "current_liabilities_change_to_assets",
+          "gain": 8146.664719462395,
+          "mean_abs_shap": 0.0644658164991341
+        },
+        {
+          "feature": "log_employees",
+          "gain": 4721.01951444149,
+          "mean_abs_shap": 0.06354470761785833
+        },
+        {
+          "feature": "debtors_to_assets",
+          "gain": 7361.22449028492,
+          "mean_abs_shap": 0.05374444796647723
+        },
+        {
+          "feature": "cash_change_to_assets",
+          "gain": 4762.079753875732,
+          "mean_abs_shap": 0.05208610429891003
+        },
+        {
+          "feature": "equity_to_assets",
+          "gain": 2397.782291650772,
+          "mean_abs_shap": 0.03968978394900865
+        },
+        {
+          "feature": "filed_late",
+          "gain": 2834.5617797374725,
+          "mean_abs_shap": 0.038235136477530726
+        },
+        {
+          "feature": "cash_to_assets",
+          "gain": 2312.262593269348,
+          "mean_abs_shap": 0.03697174761840726
+        },
+        {
+          "feature": "cash_to_current_liabilities",
+          "gain": 1945.4360390901566,
+          "mean_abs_shap": 0.03551119320380216
+        },
+        {
+          "feature": "liabilities_to_assets",
+          "gain": 1379.623498082161,
+          "mean_abs_shap": 0.02329372499174138
+        },
+        {
+          "feature": "working_capital_to_assets",
+          "gain": 856.6522479057312,
+          "mean_abs_shap": 0.010497326408322308
+        },
+        {
+          "feature": "entity_scotland",
+          "gain": 226.79150009155273,
+          "mean_abs_shap": 0.008878525009994281
+        },
+        {
+          "feature": "entity_northern_ireland",
+          "gain": 103.22195935249329,
+          "mean_abs_shap": 0.0035897266292659494
+        },
+        {
+          "feature": "entity_england_wales",
+          "gain": 115.39001905918121,
+          "mean_abs_shap": 0.0033743791831869325
+        },
+        {
+          "feature": "discloses_turnover",
+          "gain": 113.36813974380493,
+          "mean_abs_shap": 0.002236263995482667
+        },
+        {
+          "feature": "has_prior_year",
+          "gain": 57.111889600753784,
+          "mean_abs_shap": 0.0014284753423571904
+        },
+        {
+          "feature": "entity_llp",
+          "gain": 69.72066986560822,
+          "mean_abs_shap": 0.0014222793292578688
+        },
+        {
+          "feature": "equity_turned_negative",
+          "gain": 11.039370059967041,
+          "mean_abs_shap": 0.0002285164560315004
+        },
+        {
+          "feature": "negative_equity",
+          "gain": 0.0,
+          "mean_abs_shap": 0.0
+        },
+        {
+          "feature": "entity_other",
+          "gain": 0.0,
+          "mean_abs_shap": 0.0
+        }
+      ]
+    }
+  }
+}

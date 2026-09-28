@@ -17,3 +17,4 @@ logs/
 .streamlit/secrets.toml
 tests/fixtures/snapshot/*.zip
 tests/fixtures/accounts/*.zip
+reports/test_predictions_*.parquet

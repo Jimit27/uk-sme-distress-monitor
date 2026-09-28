@@ -34,12 +34,12 @@ st.set_page_config(page_title="UK SME Distress Monitor", page_icon="📉", layou
 def style(fig: go.Figure, height: int = 360) -> go.Figure:
     fig.update_layout(
         height=height,
-        margin=dict(l=8, r=8, t=36, b=8),
+        margin=dict(l=8, r=8, t=40, b=8),
         paper_bgcolor=SURFACE,
         plot_bgcolor=SURFACE,
         font=dict(family="system-ui, -apple-system, Segoe UI, sans-serif", color=INK2, size=13),
         title_font=dict(color=INK, size=15),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(color=INK2)),
+        legend=dict(orientation="h", yanchor="top", y=-0.2, x=0, font=dict(color=INK2)),
         hoverlabel=dict(bgcolor="white", font_color=INK),
     )
     fig.update_xaxes(gridcolor=GRID, linecolor=AXIS, tickfont=dict(color=MUTED), zeroline=False)
@@ -57,6 +57,13 @@ def load_json(name: str) -> dict:
 def load_parquet(name: str) -> pd.DataFrame:
     p = PUB / name
     return pd.read_parquet(p) if p.exists() else pd.DataFrame()
+
+
+def month_label(batch: str) -> str:
+    """'July2025' -> 'July 2025'."""
+    import re
+
+    return re.sub(r"(\D)(\d{4})$", r"\1 \2", batch)
 
 
 def pct(x: float, dp: int = 1) -> str:
@@ -163,8 +170,8 @@ with tab_model:
     else:
         cohort = metrics["cohort"]
         st.markdown(
-            f"Trained on accounts filed in **{', '.join(ins['train_batches'])}** and tested out-of-time on "
-            f"**{', '.join(ins['test_batches'])}** filings ({best['n']:,} companies, {best['events']:,} insolvencies, "
+            f"Trained on accounts filed in **{', '.join(map(month_label, ins['train_batches']))}** and tested out-of-time on "
+            f"**{', '.join(map(month_label, ins['test_batches']))}** filings ({best['n']:,} companies, {best['events']:,} insolvencies, "
             f"base rate {pct(best['base_rate'], 2)}). Outcomes read from the register about 12 months later."
         )
         rows = []
@@ -204,7 +211,7 @@ with tab_model:
             fig.update_layout(title="Share of insolvencies caught vs share of companies reviewed")
             fig.update_xaxes(title="Companies reviewed, riskiest first (%)", range=[0, 100])
             fig.update_yaxes(title="Insolvencies caught (%)", range=[0, 100])
-            left.plotly_chart(style(fig), use_container_width=True)
+            left.plotly_chart(style(fig, 400), use_container_width=True)
 
         grade_tbl = pd.DataFrame(ins["grade_table"])
         fig = go.Figure(
@@ -221,7 +228,7 @@ with tab_model:
         )
         fig.update_layout(title="Observed 12-month insolvency rate by grade (test set)", bargap=0.35, showlegend=False)
         fig.update_yaxes(title="Insolvency rate (%)")
-        right.plotly_chart(style(fig), use_container_width=True)
+        right.plotly_chart(style(fig, 400), use_container_width=True)
 
         dec = pd.DataFrame(ins["decile_table"])
         fig = go.Figure()
@@ -234,7 +241,7 @@ with tab_model:
         fig.update_xaxes(title="Predicted PD (%)")
         fig.update_yaxes(title="Observed rate (%)")
         left2, right2 = st.columns(2)
-        left2.plotly_chart(style(fig), use_container_width=True)
+        left2.plotly_chart(style(fig, 400), use_container_width=True)
 
         imp = pd.DataFrame(ins["feature_importance"]).head(12).iloc[::-1]
         fig = go.Figure(go.Bar(x=imp["mean_abs_shap"], y=imp["feature"], orientation="h", marker=dict(color=SERIES[0], cornerradius=4),
@@ -269,6 +276,11 @@ with tab_register:
                 hide_index=True,
                 use_container_width=True,
             )
+            a.caption(
+                "Read with care: a company in liquidation usually moves its registered office to the insolvency "
+                "practitioner's address, so high shares in areas like NR (Norwich) and PR (Preston) mostly reflect "
+                "where large insolvency firms are based, not where the businesses traded."
+            )
         if not vintage.empty:
             v = vintage[vintage["incorporation_year"] <= vintage["incorporation_year"].max() - 1]
             fig = go.Figure(go.Scatter(x=v["incorporation_year"], y=v["insolvency_rate_pct"], mode="lines", line=dict(color=SERIES[0], width=2),
@@ -276,6 +288,10 @@ with tab_register:
             fig.update_layout(title="Insolvency share by year of incorporation", showlegend=False)
             fig.update_yaxes(title="% in insolvency")
             b.plotly_chart(style(fig), use_container_width=True)
+            b.caption(
+                "Survivors only: older vintages look riskier partly because their healthy peers have long since "
+                "dissolved, and liquidations can take years to close."
+            )
 
 # ------------------------------------------------------------ method
 with tab_method:

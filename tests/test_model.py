@@ -66,7 +66,7 @@ def test_reason_codes_only_positive():
 
 def test_template_summary_handles_missing():
     row = pd.Series({"grade": "D", "pd": 0.12, "entity_name": "ACME LTD", "total_assets": np.nan})
-    s = template_summary(row, [("negative_equity", 0.4)])
+    s = template_summary(row, [("negative_equity", 0.4)], pd.Series({"negative_equity": 1.0}), {"negative_equity": 0.0})
     assert "ACME LTD is graded D" in s and "negative equity" in s
 
 
@@ -77,3 +77,13 @@ def test_metrics_helpers():
     s = summarise(y, p, bootstrap=False)
     assert s["roc_auc"] == 1.0 and s["ks"] == 1.0
     assert len(decile_table(np.tile(y, 4), np.tile(p, 4) + np.arange(20) * 1e-6, bins=5)) == 5
+
+
+def test_describe_follows_the_value_not_the_sign():
+    from smewatch.model.explain import describe
+
+    assert describe("log_total_assets", 14.0, 10.0).startswith("larger balance sheet")
+    assert describe("log_total_assets", 6.0, 10.0) == "very small balance sheet"
+    assert describe("cash_to_assets", None, 0.2) == "cash to assets not reported"
+    assert describe("has_prior_year", 1.0, 1.0) == "established filing history"
+    assert describe("filed_late", 1.0, 0.0) == "accounts filed after the statutory deadline"

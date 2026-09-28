@@ -28,3 +28,6 @@ models:
 seeds:
   smewatch:
     +quote_columns: false
+
+flags:
+  send_anonymous_usage_stats: false

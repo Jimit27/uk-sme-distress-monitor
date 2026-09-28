@@ -1,8 +1,13 @@
 {#- Ratio that returns NULL on a zero/NULL denominator and clips outliers.
     Filed accounts contain plenty of tiny denominators (a company with GBP 1
     of assets), so unclipped ratios would be dominated by noise. -#}
+{#- NB: DuckDB's least/greatest skip NULLs, so the NULL case is handled
+    explicitly - otherwise a missing ratio would silently become the bound. -#}
 {% macro safe_ratio(numerator, denominator, lo=-10, hi=10) -%}
-    least(greatest(({{ numerator }}) / nullif(({{ denominator }}), 0), {{ lo }}), {{ hi }})
+    case
+        when ({{ numerator }}) is null or ({{ denominator }}) is null or ({{ denominator }}) = 0 then null
+        else least(greatest(({{ numerator }}) / ({{ denominator }}), {{ lo }}), {{ hi }})
+    end
 {%- endmacro %}
 
 {% macro status_group(status_col) -%}

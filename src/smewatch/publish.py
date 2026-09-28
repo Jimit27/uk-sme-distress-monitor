@@ -43,6 +43,12 @@ def publish_all(warehouse: Path | None = None, out_dir: Path | None = None) -> N
     metrics = config.REPORTS / "metrics.json"
     if metrics.exists():
         shutil.copy2(metrics, out_dir / "metrics.json")
-    for f in config.REPORTS.glob("test_predictions_*.parquet"):
-        shutil.copy2(f, out_dir / f.name)
+    preds = config.REPORTS / "test_predictions_insolvency.parquet"
+    if preds.exists():
+        # the dashboard only needs label + scores for its curves; keep the committed file small
+        import pandas as pd
+
+        p = pd.read_parquet(preds, columns=["label_insolvency", "pd", "pd_logistic"])
+        p = p.astype({"label_insolvency": "int8", "pd": "float32", "pd_logistic": "float32"})
+        p.to_parquet(out_dir / preds.name, index=False)
     log.info("published dashboard files to %s", out_dir)

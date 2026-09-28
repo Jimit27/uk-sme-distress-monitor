@@ -57,10 +57,6 @@ select
     (equity < 0)::int                                                            as negative_equity,
     {{ safe_ratio('total_assets - equity', 'total_assets', 0, 20) }}             as liabilities_to_assets,
     {{ safe_ratio('creditors_after_1y_cur', 'total_assets', 0, 20) }}            as long_term_creditors_to_assets,
-    {{ safe_ratio('retained_earnings_cur', 'total_assets') }}                    as retained_earnings_to_assets,
-    {{ safe_ratio('bank_borrowings_cur', 'total_assets', 0, 20) }}               as bank_borrowings_to_assets,
-    {{ safe_ratio('owed_to_directors_cur', 'total_assets', 0, 20) }}             as director_loans_to_assets,
-    {{ safe_ratio('tax_social_security_payable_cur', 'total_assets', 0, 20) }}   as tax_payable_to_assets,
 
     -- liquidity
     {{ safe_ratio('current_assets_cur', 'current_liabilities', 0, 50) }}         as current_ratio,

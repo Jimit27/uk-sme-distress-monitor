@@ -14,7 +14,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from smewatch.model.features import DESCRIPTIONS
+from smewatch.model.features import BINARY_FEATURES, DESCRIPTIONS
 
 GRADE_WORDS = {
     "A": "low",
@@ -26,7 +26,7 @@ GRADE_WORDS = {
 
 
 def reason_codes(contrib: pd.DataFrame, k: int = 3) -> list[list[tuple[str, float]]]:
-    """Top-k (feature, contribution) pairs that increase risk, per row."""
+    """Top-k (feature, SHAP contribution) pairs that increase risk, per row."""
     out = []
     values = contrib.to_numpy()
     cols = np.array(contrib.columns)
@@ -37,9 +37,14 @@ def reason_codes(contrib: pd.DataFrame, k: int = 3) -> list[list[tuple[str, floa
     return out
 
 
-def describe(feature: str, direction_up: bool = True) -> str:
-    up, down = DESCRIPTIONS.get(feature, (feature.replace("_", " "), feature.replace("_", " ")))
-    return up if direction_up else down
+def describe(feature: str, value: float | None = None, median: float | None = None) -> str:
+    """Phrase for a feature given the company's value relative to the typical filer."""
+    high, low = DESCRIPTIONS.get(feature, (feature.replace("_", " "), feature.replace("_", " ")))
+    if value is None or pd.isna(value):
+        return f"{feature.replace('_', ' ')} not reported"
+    if feature in BINARY_FEATURES or median is None or pd.isna(median):
+        median = 0.5
+    return high if value > median else low
 
 
 def fmt_money(v: float | None) -> str:
@@ -54,7 +59,12 @@ def fmt_money(v: float | None) -> str:
     return f"{sign}£{v:.0f}"
 
 
-def template_summary(row: pd.Series, reasons: list[tuple[str, float]]) -> str:
+def template_summary(
+    row: pd.Series,
+    reasons: list[tuple[str, float]],
+    values: pd.Series | None = None,
+    medians: dict | None = None,
+) -> str:
     grade = row.get("grade", "?")
     pd_pct = 100 * float(row.get("pd", float("nan")))
     name = (row.get("entity_name") or row.get("company_number") or "This company").strip()
@@ -74,13 +84,22 @@ def template_summary(row: pd.Series, reasons: list[tuple[str, float]]) -> str:
         when = f" at {pd.Timestamp(bsd):%d %b %Y}" if pd.notna(bsd) else ""
         parts.append(f"Its latest accounts show {', '.join(facts)}{when}.")
     if reasons:
-        parts.append("Main risk drivers: " + "; ".join(describe(f) for f, _ in reasons) + ".")
+        phrases = [
+            describe(f, None if values is None else values.get(f), (medians or {}).get(f)) for f, _ in reasons
+        ]
+        parts.append("Main risk drivers: " + "; ".join(phrases) + ".")
     else:
         parts.append("No individual factor pushes its risk above the typical filer.")
     return " ".join(parts)
 
 
-def llm_summary(row: pd.Series, reasons: list[tuple[str, float]], model: str = "claude-haiku-4-5-20251001") -> str | None:
+def llm_summary(
+    row: pd.Series,
+    reasons: list[tuple[str, float]],
+    values: pd.Series | None = None,
+    medians: dict | None = None,
+    model: str = "claude-haiku-4-5-20251001",
+) -> str | None:
     """Optional: rewrite the template facts as a two-sentence analyst note."""
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
@@ -89,7 +108,7 @@ def llm_summary(row: pd.Series, reasons: list[tuple[str, float]], model: str = "
         import anthropic
     except ImportError:
         return None
-    facts = template_summary(row, reasons)
+    facts = template_summary(row, reasons, values, medians)
     prompt = (
         "You are a UK credit analyst. Rewrite the following facts as a concise two-sentence note "
         "for a lending team. Use only the facts given; do not add numbers or speculation.\n\n" + facts

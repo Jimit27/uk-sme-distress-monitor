@@ -51,12 +51,12 @@ TARGETS = {
 LGB_PARAMS = dict(
     objective="binary",
     learning_rate=0.03,
-    num_leaves=31,
-    min_child_samples=200,
+    num_leaves=15,
+    min_child_samples=500,
     subsample=0.8,
     subsample_freq=1,
     colsample_bytree=0.8,
-    reg_lambda=5.0,
+    reg_lambda=10.0,
     n_estimators=3000,
     verbose=-1,
 )
@@ -72,6 +72,7 @@ class DistressModel:
     features: list[str]
     grade_cutoffs: list[float]
     metadata: dict
+    feature_medians: dict | None = None
 
     def raw_score(self, df: pd.DataFrame) -> np.ndarray:
         return self.booster.predict_proba(model_matrix(df))[:, 1]
@@ -156,6 +157,7 @@ def train_target(df: pd.DataFrame, target: str, out_dir: Path, seed: int = 42) -
     iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
     iso.fit(booster.predict_proba(x_cal)[:, 1], y_cal)
 
+    log.info("[%s] models fitted; boosted trees used: %s", target, booster.best_iteration_)
     p_logit = logit.predict_proba(x_test)[:, 1]
     p_raw = booster.predict_proba(x_test)[:, 1]
     p_cal = iso.predict(p_raw)
@@ -185,6 +187,7 @@ def train_target(df: pd.DataFrame, target: str, out_dir: Path, seed: int = 42) -
         features=list(FEATURES),
         grade_cutoffs=cut,
         metadata={k: v for k, v in results.items() if k != "test"} | {"test_auc": results["test"]["lightgbm_calibrated"]["roc_auc"]},
+        feature_medians={k: float(v) for k, v in x_train_all.median().items() if pd.notna(v)},
     )
 
     grades = model.grade(p_cal)
@@ -202,7 +205,11 @@ def train_target(df: pd.DataFrame, target: str, out_dir: Path, seed: int = 42) -
         {
             "feature": FEATURES,
             "gain": booster.booster_.feature_importance("gain"),
-            "mean_abs_shap": np.abs(model.contributions(test)).mean().reindex(FEATURES).to_numpy(),
+            # TreeSHAP is costly; a 20k random sample of the test month gives a stable ranking
+            "mean_abs_shap": np.abs(model.contributions(test.sample(min(len(test), 20_000), random_state=seed)))
+            .mean()
+            .reindex(FEATURES)
+            .to_numpy(),
         }
     ).sort_values("mean_abs_shap", ascending=False)
     results["feature_importance"] = importance.to_dict(orient="records")

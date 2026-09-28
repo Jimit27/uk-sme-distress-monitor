@@ -9,7 +9,8 @@ import joblib
 import pandas as pd
 
 from smewatch import config
-from smewatch.model.explain import reason_codes, template_summary
+from smewatch.model.explain import describe, reason_codes, template_summary
+from smewatch.model.features import model_matrix
 
 log = logging.getLogger(__name__)
 
@@ -30,10 +31,16 @@ def score_frame(df: pd.DataFrame, model_dir: Path | None = None) -> pd.DataFrame
     out["grade"] = ins.grade(out["pd"].to_numpy())
     out["pd_failure"] = fail.predict_pd(df)
     reasons = reason_codes(ins.contributions(df))
-    out["reason_1"] = [r[0][0] if len(r) > 0 else None for r in reasons]
-    out["reason_2"] = [r[1][0] if len(r) > 1 else None for r in reasons]
-    out["reason_3"] = [r[2][0] if len(r) > 2 else None for r in reasons]
-    out["summary"] = [template_summary(row, r) for (_, row), r in zip(out.iterrows(), reasons)]
+    values = model_matrix(df)
+    medians = ins.feature_medians or {}
+    for i in range(3):
+        out[f"reason_{i + 1}"] = [
+            describe(r[i][0], values.iloc[j].get(r[i][0]), medians.get(r[i][0])) if len(r) > i else None
+            for j, r in enumerate(reasons)
+        ]
+    out["summary"] = [
+        template_summary(row, r, values.iloc[j], medians) for j, ((_, row), r) in enumerate(zip(out.iterrows(), reasons))
+    ]
     return out.sort_values("pd", ascending=False).reset_index(drop=True)
 
 
